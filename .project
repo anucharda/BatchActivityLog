@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>BatchReceiveResult</name>
+	<comment></comment>
+	<projects>
+		<project>BatchTreatment</project>
+		<project>RemoteSystemsTempFiles</project>
+		<project>UTILITY_CPAC_COLLECTION_BATCHS</project>
+		<project>UTILITY_CPAC_COLLECTION_COMMON</project>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+	</natures>
+</projectDescription>
