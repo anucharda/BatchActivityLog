@@ -12,6 +12,7 @@ import th.co.ais.cpac.cl.batch.db.CLBatch.GetCLBatchVersionResponse;
 import th.co.ais.cpac.cl.batch.db.CLTmpActSiebel;
 import th.co.ais.cpac.cl.batch.db.CLTmpActSiebel.CLTmpActSiebelInfo;
 import th.co.ais.cpac.cl.batch.db.CLTmpActSiebel.CLTmpActSiebelResponse;
+import th.co.ais.cpac.cl.batch.db.CLTreatment;
 import th.co.ais.cpac.cl.batch.template.ProcessTemplate;
 import th.co.ais.cpac.cl.batch.util.BatchUtil;
 import th.co.ais.cpac.cl.batch.util.FileUtil;
@@ -36,23 +37,23 @@ public class GenActivityLogWorkerProcess extends ProcessTemplate {
 		context.getLogger().info("Start GenActivityLogWorkerProcess.executeProcess");
 		execute();
 		BigDecimal batchTypeId=BatchUtil.getBatchTypeId(jobType);
-		if("SMS–Outbound".equals(processName)){
+		if(ConstantsBatchActivity.smsActivityLog.equals(processName)){
 			generateSMSBound(context,jobType,batchTypeId);
+		}else if(ConstantsBatchActivity.letterActivityLog.equals(processName)){
+			generateLetterOutBound(context,jobType,batchTypeId);
+		}else if(ConstantsBatchActivity.debtActivityLog.equals(processName)){
+			generateDebtOutBound(context,jobType,batchTypeId);
 		}
 		context.getLogger().info("End GenActivityLogWorkerProcess.executeProcess");
 	}
 
 	public void generateSMSBound(Context context, String jobType,BigDecimal batchTypeId) {
-		// อ่าน file ทีละ record
-		// เช็คว่า record แรกของไฟล์เป็น order type ไหน
-		// จบไฟล์ค่อย update treatement โดย grouping ตาม BA,update batch ต่อ
+
 		try {
 			context.getLogger().info("Start GenActivityLogWorkerProcess.generateSMSBound");
 			CLTmpActSiebel tmpActSiebelDB= new CLTmpActSiebel(context.getLogger());
 			tmpActSiebelDB.insertSMSOutBound(context);
-			
-			
-			
+			genFileProcess(ConstantsBatchActivity.smsActivityLog,batchTypeId,jobType);
 			context.getLogger().info("End GenActivityLogWorkerProcess.generateSMSBound");
 		} catch (Exception e) {
 			context.getLogger().info("Error->"+e.getMessage()+": "+e.getCause().toString());
@@ -60,10 +61,37 @@ public class GenActivityLogWorkerProcess extends ProcessTemplate {
 			context.getLogger().info("End GenActivityLogWorkerProcess.generateSMSBound");
 		}
 	}
-	
+	public void generateLetterOutBound(Context context, String jobType,BigDecimal batchTypeId) {
+
+		try {
+			context.getLogger().info("Start GenActivityLogWorkerProcess.generateLetterOutBound");
+			CLTmpActSiebel tmpActSiebelDB= new CLTmpActSiebel(context.getLogger());
+			tmpActSiebelDB.insertLetterOutBound(context);
+			genFileProcess(ConstantsBatchActivity.smsActivityLog,batchTypeId,jobType);
+			context.getLogger().info("End GenActivityLogWorkerProcess.generateLetterOutBound");
+		} catch (Exception e) {
+			context.getLogger().info("Error->"+e.getMessage()+": "+e.getCause().toString());
+		} finally {
+			context.getLogger().info("End GenActivityLogWorkerProcess.generateLetterOutBound");
+		}
+	}
+	public void generateDebtOutBound(Context context, String jobType,BigDecimal batchTypeId) {
+
+		try {
+			context.getLogger().info("Start GenActivityLogWorkerProcess.generateDebtOutBound");
+			CLTmpActSiebel tmpActSiebelDB= new CLTmpActSiebel(context.getLogger());
+			tmpActSiebelDB.insertDebtOutBound(context);
+			genFileProcess(ConstantsBatchActivity.smsActivityLog,batchTypeId,jobType);
+			context.getLogger().info("End GenActivityLogWorkerProcess.generateDebtOutBound");
+		} catch (Exception e) {
+			context.getLogger().info("Error->"+e.getMessage()+": "+e.getCause().toString());
+		} finally {
+			context.getLogger().info("End GenActivityLogWorkerProcess.generateDebtOutBound");
+		}
+	}
 	public void genFileProcess(String processName,BigDecimal batchTypeId, String jobType) throws Exception{
 		/*get batch limit*/
-		context.getLogger().info("Start GenActivityLogWorkerProcess.genFileProcess");
+		context.getLogger().info("Start GenActivityLogWorkerProcess.genFileProcess:"+processName);
 		CLBatch batchDB= new CLBatch(context.getLogger());
 		GetCLBatchVersionResponse batchVersionResult=batchDB.getCLBatchVersion(batchTypeId);
 
@@ -78,7 +106,7 @@ public class GenActivityLogWorkerProcess extends ProcessTemplate {
 				String username=Utility.getusername(jobType);
 				String outBoundPath=batchPath.getResponse().getPathOutbound();
 				
-				for(int i=0;i<maxRecord.intValue();i++){
+				for(int i=0;i<maxFile.intValue();i++){
 					String fileName=GenFileUtil.genFileName("PLUGIN_ACTV_yyyymmdd_hh24miss.dat");
 					/*Insert Batch*/
 					CLBatch.CLBatchInfo batchInfo = batchDB.buildCLBatchInfo();
@@ -101,6 +129,7 @@ public class GenActivityLogWorkerProcess extends ProcessTemplate {
 					CLTmpActSiebelResponse result =tmpActSiebelDB.getTmpActSiebelInfo(processName, maxRecord, context);
 					if(result!=null&&result.getResponse()!=null&&result.getResponse().size()>0){
 						String [] genData=new String[result.getResponse().size()];
+						BigDecimal [] treatmentArr =new BigDecimal[result.getResponse().size()];
 						for(int j=0;j<result.getResponse().size();j++){
 							CLTmpActSiebelInfo info=result.getResponse().get(j);
 							StringBuffer tmp=new StringBuffer();
@@ -126,8 +155,20 @@ public class GenActivityLogWorkerProcess extends ProcessTemplate {
 							tmp.append("").append(ConstantsBatchActivity.delimiter);//Sub Status
 							tmp.append("").append(ConstantsBatchActivity.delimiter);//Reason
 							tmp.append("").append(ConstantsBatchActivity.delimiter);//Order#
-							tmp.append("");//SR#
-							GenFileUtil.genFile(genData, fileName,outBoundPath);
+							tmp.append("");//SR		
+							genData[j]=tmp.toString();
+							treatmentArr[j]=info.getTreatmentId();
+							
+						}
+						GenFileUtil.genFile(genData, fileName,outBoundPath);
+						//Update batch to complete
+						batchDB.updateOutboundCompleteStatus(batchID, username, context);
+						//Update gen flag
+						tmpActSiebelDB.updateGenFileResultComplete(maxRecord, processName, context);
+						//Update Treatment -- Tuning เป็น Update Top น่าจะดีกว่า
+						CLTreatment treatDB=new CLTreatment(context.getLogger());
+						for(int k=0;k<treatmentArr.length;k++){
+							treatDB.updateGenActivityLogResult(treatmentArr[k], username, context);
 						}
 						
 					}else{
@@ -140,7 +181,7 @@ public class GenActivityLogWorkerProcess extends ProcessTemplate {
 		}else{
 			context.getLogger().info("Cannot Get Batch Version");
 		}
-		context.getLogger().info("End GenActivityLogWorkerProcess.genFileProcess");
+		context.getLogger().info("End GenActivityLogWorkerProcess.genFileProcess:"+processName);
 	}
 	
 	
