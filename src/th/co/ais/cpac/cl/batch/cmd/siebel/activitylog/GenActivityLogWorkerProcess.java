@@ -103,6 +103,7 @@ public class GenActivityLogWorkerProcess extends ProcessTemplate {
 				BigDecimal maxFile=batchVersionResult.getResponse().getLimitPerDay();
 				BigDecimal batchVersion=batchVersionResult.getResponse().getBatchVersionNo();
 				String formatFileName=batchVersionResult.getResponse().getBatchNameFormat();
+				String batchEnCoding=batchVersionResult.getResponse().getBatchEncoding();
 				String username=Utility.getusername(jobType);
 				String outBoundPath=batchPath.getResponse().getPathOutbound();
 				
@@ -160,7 +161,7 @@ public class GenActivityLogWorkerProcess extends ProcessTemplate {
 							treatmentArr[j]=info.getTreatmentId();
 							
 						}
-						GenFileUtil.genFile(genData, fileName,outBoundPath);
+						GenFileUtil.genFile(genData, fileName,outBoundPath,batchEnCoding);
 						//Update batch to complete
 						batchDB.updateOutboundCompleteStatus(batchID, username, context);
 						//Update gen flag
