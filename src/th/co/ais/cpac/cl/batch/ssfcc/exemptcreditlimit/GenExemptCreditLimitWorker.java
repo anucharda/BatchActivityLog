@@ -1,24 +1,23 @@
-package th.co.ais.cpac.cl.batch.cmd.siebel.exemptlog;
+package th.co.ais.cpac.cl.batch.ssfcc.exemptcreditlimit;
 
 import th.co.ais.cpac.cl.batch.util.LogUtil;
 import th.co.ais.cpac.cl.common.Context;
 
-public class GenExemptActivityLogWorker {
+public class GenExemptCreditLimitWorker {
 
 	public static void main(String[] args) throws Exception {
 		LogUtil.initialLogger();
 		Context context = new Context();
 		try{
 
-			context.initailLogger("LoggerReceive", "GenExemptActivityLogWorker");
+			context.initailLogger("LoggerReceive", "GenExemptCreditLimitWorker");
 			// TODO Auto-generated method stub
-			context.getLogger().info("----------------------- Start GenExemptActivityLogWorker -----------------------");
+			context.getLogger().info("----------------------- Start GenExemptCreditLimitWorker -----------------------");
 			context.getLogger().info("Load configure....");
 			String jobType=args[0];//From Parameter
 
 			System.out.println("jobType ->"+jobType);
 			//New thread for execute process.
-			//new Thread ( () -> execute(context, jobType,ConstantsBatchActivity.smsActivityLog) ).start();
 			new Thread (()->execute(context, jobType)).start();
 			context.getLogger().info("----------------------- End GenExemptActivityLogWorker ----------------------- ");
 		}catch(Exception e){
@@ -29,10 +28,10 @@ public class GenExemptActivityLogWorker {
 	
 	public static void execute(Context context,String jobType){
 		try{
-			 context.getLogger().info("Start GenExemptActivityLogProcess Execute....");
-			 context.getLogger().info("Trigger Gen Activity Exmept Log Process....");
-			 new GenExemptActivityLogProcess().executeProcess(context,jobType);
-			 context.getLogger().info("End GenExemptActivityLogProcess Execute....");
+			 context.getLogger().info("Start GenExemptCreditLimitProcess Execute....");
+			 context.getLogger().info("Trigger Gen Exempt Credit Limit Process....");
+			 new GenExemptCreditLimitProcess().executeProcess(context,jobType);
+			 context.getLogger().info("End GenExemptCreditLimitProcess Execute....");
 		}catch(Exception e){
 			e.printStackTrace();
 			context.getLogger().error(  "Error->"+e.getMessage()+": "+e.getCause().toString() ,e);

@@ -35,7 +35,7 @@ public class GenActivityLogWorker {
 		try{
 			 context.getLogger().info("Start GenActivityLogWorkerProcess Execute....");
 			 context.getLogger().info("Trigger Gen Activity Log Process....");
-			 new GenActivityLogWorkerProcess().executeProcess(context,jobType,processName);
+			 new GenActivityLogProcess().executeProcess(context,jobType,processName);
 			 context.getLogger().info("End GenActivityLogWorkerProcess Execute....");
 		}catch(Exception e){
 			e.printStackTrace();

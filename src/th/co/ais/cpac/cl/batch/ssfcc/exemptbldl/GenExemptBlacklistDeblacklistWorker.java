@@ -1,24 +1,23 @@
-package th.co.ais.cpac.cl.batch.cmd.siebel.exemptlog;
+package th.co.ais.cpac.cl.batch.ssfcc.exemptbldl;
 
 import th.co.ais.cpac.cl.batch.util.LogUtil;
 import th.co.ais.cpac.cl.common.Context;
 
-public class GenExemptActivityLogWorker {
+public class GenExemptBlacklistDeblacklistWorker {
 
 	public static void main(String[] args) throws Exception {
 		LogUtil.initialLogger();
 		Context context = new Context();
 		try{
 
-			context.initailLogger("LoggerReceive", "GenExemptActivityLogWorker");
+			context.initailLogger("LoggerReceive", "ExemptBlacklistDeblacklistWorker");
 			// TODO Auto-generated method stub
-			context.getLogger().info("----------------------- Start GenExemptActivityLogWorker -----------------------");
+			context.getLogger().info("----------------------- Start ExemptBlacklistDeblacklistWorker -----------------------");
 			context.getLogger().info("Load configure....");
 			String jobType=args[0];//From Parameter
 
 			System.out.println("jobType ->"+jobType);
 			//New thread for execute process.
-			//new Thread ( () -> execute(context, jobType,ConstantsBatchActivity.smsActivityLog) ).start();
 			new Thread (()->execute(context, jobType)).start();
 			context.getLogger().info("----------------------- End GenExemptActivityLogWorker ----------------------- ");
 		}catch(Exception e){
@@ -30,8 +29,8 @@ public class GenExemptActivityLogWorker {
 	public static void execute(Context context,String jobType){
 		try{
 			 context.getLogger().info("Start GenExemptActivityLogProcess Execute....");
-			 context.getLogger().info("Trigger Gen Activity Exmept Log Process....");
-			 new GenExemptActivityLogProcess().executeProcess(context,jobType);
+			 context.getLogger().info("Trigger Gen Exempt Blacklist/Deblacklist Process....");
+			 new GenExemptBlacklistDeblacklistProcess().executeProcess(context,jobType);
 			 context.getLogger().info("End GenExemptActivityLogProcess Execute....");
 		}catch(Exception e){
 			e.printStackTrace();

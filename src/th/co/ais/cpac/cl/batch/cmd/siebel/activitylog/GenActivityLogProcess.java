@@ -20,7 +20,7 @@ import th.co.ais.cpac.cl.batch.util.GenFileUtil;
 import th.co.ais.cpac.cl.batch.util.Utility;
 import th.co.ais.cpac.cl.common.Context;
 
-public class GenActivityLogWorkerProcess extends ProcessTemplate {
+public class GenActivityLogProcess extends ProcessTemplate {
 	@Override
 	protected String getPathDatabase() {
 		// TODO Auto-generated method stub

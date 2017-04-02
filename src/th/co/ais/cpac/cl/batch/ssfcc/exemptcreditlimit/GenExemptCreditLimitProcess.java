@@ -1,4 +1,4 @@
-package th.co.ais.cpac.cl.batch.cmd.siebel.exemptlog;
+package th.co.ais.cpac.cl.batch.ssfcc.exemptcreditlimit;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -6,14 +6,13 @@ import java.util.Date;
 import th.co.ais.cpac.cl.batch.ConstantsBatchActivity;
 import th.co.ais.cpac.cl.batch.ConstantsDB;
 import th.co.ais.cpac.cl.batch.db.CLBatch;
-import th.co.ais.cpac.cl.batch.db.CLBatch.CLBatchInfo;
 import th.co.ais.cpac.cl.batch.db.CLBatch.CLBatchPathResponse;
 import th.co.ais.cpac.cl.batch.db.CLBatch.ExecuteResponse;
 import th.co.ais.cpac.cl.batch.db.CLBatch.GetCLBatchVersionResponse;
 import th.co.ais.cpac.cl.batch.db.CLBatchExempt;
-import th.co.ais.cpac.cl.batch.db.CLTmpActExempt;
-import th.co.ais.cpac.cl.batch.db.CLTmpActExempt.CLTmpActExemptInfo;
-import th.co.ais.cpac.cl.batch.db.CLTmpActExempt.CLTmpActExemptResponse;
+import th.co.ais.cpac.cl.batch.db.CLTmpExemptCreditLimit;
+import th.co.ais.cpac.cl.batch.db.CLTmpExemptCreditLimit.CLTmpExemptCreditLimitInfo;
+import th.co.ais.cpac.cl.batch.db.CLTmpExemptCreditLimit.CLTmpExemptCreditLimitResponse;
 import th.co.ais.cpac.cl.batch.template.ProcessTemplate;
 import th.co.ais.cpac.cl.batch.util.BatchUtil;
 import th.co.ais.cpac.cl.batch.util.FileUtil;
@@ -21,7 +20,7 @@ import th.co.ais.cpac.cl.batch.util.GenFileUtil;
 import th.co.ais.cpac.cl.batch.util.Utility;
 import th.co.ais.cpac.cl.common.Context;
 
-public class GenExemptActivityLogWorkerProcess extends ProcessTemplate {
+public class GenExemptCreditLimitProcess extends ProcessTemplate {
 	@Override
 	protected String getPathDatabase() {
 		// TODO Auto-generated method stub
@@ -35,31 +34,31 @@ public class GenExemptActivityLogWorkerProcess extends ProcessTemplate {
 	}
 
 	public void executeProcess(Context context, String jobType) throws Exception {
-		context.getLogger().info("Start GenExemptActivityLogWorkerProcess.executeProcess");
+		context.getLogger().info("Start GenExemptCreditLimitProcess.executeProcess");
 		execute();
 		BigDecimal batchTypeId=BatchUtil.getBatchTypeId(jobType);
 		generate(context,jobType,batchTypeId);
-		context.getLogger().info("End GenExemptActivityLogWorkerProcess.executeProcess");
+		context.getLogger().info("End GenExemptCreditLimitProcess.executeProcess");
 	}
 
 	public void generate(Context context, String jobType,BigDecimal batchTypeId) {
 
 		try {
-			context.getLogger().info("Start GenExemptActivityLogWorkerProcess.generateSMSBound");
-			CLTmpActExempt  tmpExemptDB= new CLTmpActExempt(context.getLogger());
-			tmpExemptDB.insertExempActLog(context);
+			context.getLogger().info("Start GenExemptCreditLimitProcess.generate");
+			CLTmpExemptCreditLimit  tmpExemptDB= new CLTmpExemptCreditLimit(context.getLogger());
+			tmpExemptDB.insertExempCreditLimit(context,batchTypeId);
 			genFileProcess(batchTypeId,jobType);
-			context.getLogger().info("End GenExemptActivityLogWorkerProcess.generateSMSBound");
+			context.getLogger().info("End GenExemptCreditLimitProcess.generate");
 		} catch (Exception e) {
 			context.getLogger().info("Error->"+e.getMessage()+": "+e.getCause().toString());
 		} finally {
-			context.getLogger().info("End GenExemptActivityLogWorkerProcess.generateSMSBound");
+			context.getLogger().info("End GenExemptCreditLimitProcess.generate");
 		}
 	}
 	
 	public void genFileProcess(BigDecimal batchTypeId, String jobType) throws Exception{
 		/*get batch limit*/
-		context.getLogger().info("Start GenExemptActivityLogWorkerProcess.genFileProcess");
+		context.getLogger().info("Start GenExemptCreditLimitProcess.genFileProcess");
 		CLBatch batchDB= new CLBatch(context.getLogger());
 		GetCLBatchVersionResponse batchVersionResult=batchDB.getCLBatchVersion(batchTypeId);
 
@@ -94,20 +93,28 @@ public class GenExemptActivityLogWorkerProcess extends ProcessTemplate {
 					
 					 BigDecimal batchID = insertResult.getIdentity();
 					/*Get Data Top*/
-					 CLTmpActExempt tmpActExemptDB=new CLTmpActExempt(context.getLogger());
-					CLTmpActExemptResponse result =tmpActExemptDB.getTmpActExemptInfo(maxRecord, context);
+					CLTmpExemptCreditLimit tmpExemptCreditLimitDB=new CLTmpExemptCreditLimit(context.getLogger());
+					CLTmpExemptCreditLimitResponse result =tmpExemptCreditLimitDB.getTmpExemptCreditLimitInfo(maxRecord, context);
 					if(result!=null&&result.getResponse()!=null&&result.getResponse().size()>0){
 						String [] genData=new String[result.getResponse().size()];
 						BigDecimal [] exempIdArr=new BigDecimal[result.getResponse().size()];
 						for(int j=0;j<result.getResponse().size();j++){
-							CLTmpActExemptInfo info=result.getResponse().get(j);
+							CLTmpExemptCreditLimitInfo info=result.getResponse().get(j);
 							StringBuffer tmp=new StringBuffer();
 							tmp.append(ConstantsBatchActivity.body).append(ConstantsBatchActivity.delimiter);
+							tmp.append(info.getExemptCustomerId()).append(ConstantsBatchActivity.delimiter);
+							tmp.append(info.getCaNo()).append(ConstantsBatchActivity.delimiter);
 							tmp.append(info.getBaNo()).append(ConstantsBatchActivity.delimiter);
 							tmp.append(info.getMobileNo()).append(ConstantsBatchActivity.delimiter);
-							tmp.append(info.getMode()).append(ConstantsBatchActivity.delimiter);
+							tmp.append(info.getExemptMode()).append(ConstantsBatchActivity.delimiter);
+							tmp.append(info.getExemptLevel()).append(ConstantsBatchActivity.delimiter);
+							tmp.append(info.getChannel()).append(ConstantsBatchActivity.delimiter);
 							tmp.append(info.getEffectiveDate()).append(ConstantsBatchActivity.delimiter);
+							tmp.append(info.getEndDate()).append(ConstantsBatchActivity.delimiter);
 							tmp.append(info.getExpireDate()).append(ConstantsBatchActivity.delimiter);
+							tmp.append(info.getDuration()).append(ConstantsBatchActivity.delimiter);
+							tmp.append(info.getLocationCode()).append(ConstantsBatchActivity.delimiter);
+							tmp.append(info.getReason()).append(ConstantsBatchActivity.delimiter);
 							genData[j]=tmp.toString();		
 							exempIdArr[j]=info.getExemptCustomerId();
 						}
@@ -115,7 +122,7 @@ public class GenExemptActivityLogWorkerProcess extends ProcessTemplate {
 						//Update batch to complete
 						batchDB.updateOutboundCompleteStatus(batchID, username, context);
 						//Update gen flag
-						tmpActExemptDB.updateGenFileResultComplete(maxRecord, context);
+						tmpExemptCreditLimitDB.updateGenFileResultComplete(maxRecord, context);
 						//Update Treatment -- Tuning เป็น Update Top น่าจะดีกว่า
 						CLBatchExempt batchExemptDB=new CLBatchExempt(context.getLogger());
 						for(int k=0;k<exempIdArr.length;k++){
@@ -137,7 +144,7 @@ public class GenExemptActivityLogWorkerProcess extends ProcessTemplate {
 		}else{
 			context.getLogger().info("Cannot Get Batch Version");
 		}
-		context.getLogger().info("End GenActivityLogWorkerProcess.genFileProcess");
+		context.getLogger().info("End GenExemptCreditLimitProcess.genFileProcess");
 	}
 	
 	
