@@ -109,6 +109,7 @@ public class GenActivityLogProcess extends ProcessTemplate {
 				
 				for(int i=0;i<maxFile.intValue();i++){
 					String fileName=GenFileUtil.genFileName("PLUGIN_ACTV_yyyymmdd_hh24miss.dat");
+					String headerFile=fileName.replaceAll("PLUGIN_ACTV_", "").replaceAll(".dat", "");
 					/*Insert Batch*/
 					CLBatch.CLBatchInfo batchInfo = batchDB.buildCLBatchInfo();
 					batchInfo.setBatchTypeId(batchTypeId);
@@ -131,6 +132,8 @@ public class GenActivityLogProcess extends ProcessTemplate {
 					if(result!=null&&result.getResponse()!=null&&result.getResponse().size()>0){
 						String [] genData=new String[result.getResponse().size()];
 						BigDecimal [] treatmentArr =new BigDecimal[result.getResponse().size()];
+						
+						int totalRecord=0;
 						for(int j=0;j<result.getResponse().size();j++){
 							CLTmpActSiebelInfo info=result.getResponse().get(j);
 							StringBuffer tmp=new StringBuffer();
@@ -159,9 +162,12 @@ public class GenActivityLogProcess extends ProcessTemplate {
 							tmp.append("");//SR		
 							genData[j]=tmp.toString();
 							treatmentArr[j]=info.getTreatmentId();
-							
+							totalRecord=j+1;
 						}
-						GenFileUtil.genFile(genData, fileName,outBoundPath,batchEnCoding);
+						StringBuffer footer=new StringBuffer();
+						footer.append(ConstantsBatchActivity.footer).append(ConstantsBatchActivity.delimiter).append(String.valueOf(totalRecord));
+	
+						GenFileUtil.genFile(genData, fileName,outBoundPath,batchEnCoding,headerFile,null,footer.toString());
 						//Update batch to complete
 						batchDB.updateOutboundCompleteStatus(batchID, username, context);
 						//Update gen flag

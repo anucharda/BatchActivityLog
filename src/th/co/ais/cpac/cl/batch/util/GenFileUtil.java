@@ -15,7 +15,7 @@ public class GenFileUtil {
 	
 	public static final String lineSeparator = System.getProperty("line.separator");
 	
-	public static void genFile(String[] genData,String fileName,String outBoundPath,String encode) throws Exception{
+	public static void genFile(String[] genData,String fileName,String outBoundPath,String encode,String headerDate,String seqNo,String footer) throws Exception{
 		String fileNamePath = outBoundPath+"/"+fileName;
 		 Writer writer = null;
 		 try{

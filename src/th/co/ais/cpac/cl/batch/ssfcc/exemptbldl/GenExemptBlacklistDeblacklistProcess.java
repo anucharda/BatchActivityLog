@@ -118,7 +118,7 @@ public class GenExemptBlacklistDeblacklistProcess extends ProcessTemplate {
 							genData[j]=tmp.toString();		
 							exempIdArr[j]=info.getExemptCustomerId();
 						}
-						GenFileUtil.genFile(genData, fileName,outBoundPath,batchEnCoding);
+						GenFileUtil.genFile(genData, fileName,outBoundPath,batchEnCoding,null,null,null);
 						//Update batch to complete
 						batchDB.updateOutboundCompleteStatus(batchID, username, context);
 						//Update gen flag
