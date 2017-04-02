@@ -103,13 +103,17 @@ public class GenActivityLogProcess extends ProcessTemplate {
 				BigDecimal maxFile=batchVersionResult.getResponse().getLimitPerDay();
 				BigDecimal batchVersion=batchVersionResult.getResponse().getBatchVersionNo();
 				String formatFileName=batchVersionResult.getResponse().getBatchNameFormat();
+				String batchFileType=batchVersionResult.getResponse().getBatchFileType();
+				String batchDelimit=batchVersionResult.getResponse().getBatchDelimiter().replace("'", "");
 				String batchEnCoding=batchVersionResult.getResponse().getBatchEncoding();
+				
 				String username=Utility.getusername(jobType);
 				String outBoundPath=batchPath.getResponse().getPathOutbound();
-				
+
 				for(int i=0;i<maxFile.intValue();i++){
-					String fileName=GenFileUtil.genFileName("PLUGIN_ACTV_yyyymmdd_hh24miss.dat");
-					String headerFile=fileName.replaceAll("PLUGIN_ACTV_", "").replaceAll(".dat", "");
+					String fileName=GenFileUtil.genFileName(formatFileName+batchFileType);
+					StringBuffer header=new StringBuffer();
+					header.append(ConstantsBatchActivity.header).append(batchDelimit).append(fileName.replaceAll("PLUGIN_ACTV_", "").replaceAll(batchFileType, ""));				
 					/*Insert Batch*/
 					CLBatch.CLBatchInfo batchInfo = batchDB.buildCLBatchInfo();
 					batchInfo.setBatchTypeId(batchTypeId);
@@ -137,37 +141,37 @@ public class GenActivityLogProcess extends ProcessTemplate {
 						for(int j=0;j<result.getResponse().size();j++){
 							CLTmpActSiebelInfo info=result.getResponse().get(j);
 							StringBuffer tmp=new StringBuffer();
-							tmp.append(ConstantsBatchActivity.body).append(ConstantsBatchActivity.delimiter);
-							tmp.append(info.getCaNo()).append(ConstantsBatchActivity.delimiter);
-							tmp.append(info.getBaNo()).append(ConstantsBatchActivity.delimiter);
-							tmp.append(info.getMobileNo()).append(ConstantsBatchActivity.delimiter);
-							tmp.append(info.getJobType()).append(ConstantsBatchActivity.delimiter);
-							tmp.append(info.getCategory()).append(ConstantsBatchActivity.delimiter);
-							tmp.append(info.getSubcateory()).append(ConstantsBatchActivity.delimiter);
-							tmp.append("").append(ConstantsBatchActivity.delimiter);//Planned Start
-							tmp.append("").append(ConstantsBatchActivity.delimiter);//Planned Completion
-							tmp.append("").append(ConstantsBatchActivity.delimiter);//No Sooner Than
-							tmp.append("").append(ConstantsBatchActivity.delimiter);//Actual Start
-							tmp.append(info.getActionStatusDtm()).append(ConstantsBatchActivity.delimiter);
-							tmp.append("").append(ConstantsBatchActivity.delimiter);//Due
-							tmp.append("").append(ConstantsBatchActivity.delimiter);//Priority
-							tmp.append("").append(ConstantsBatchActivity.delimiter);//Description
-							tmp.append("").append(ConstantsBatchActivity.delimiter);//More Info
-							tmp.append("").append(ConstantsBatchActivity.delimiter);//Status
-							tmp.append(info.getOwner()).append(ConstantsBatchActivity.delimiter);
-							tmp.append("").append(ConstantsBatchActivity.delimiter);//Document#
-							tmp.append("").append(ConstantsBatchActivity.delimiter);//Sub Status
-							tmp.append("").append(ConstantsBatchActivity.delimiter);//Reason
-							tmp.append("").append(ConstantsBatchActivity.delimiter);//Order#
+							tmp.append(ConstantsBatchActivity.body).append(batchDelimit);
+							tmp.append(info.getCaNo()).append(batchDelimit);
+							tmp.append(info.getBaNo()).append(batchDelimit);
+							tmp.append(info.getMobileNo()).append(batchDelimit);
+							tmp.append(info.getJobType()).append(batchDelimit);
+							tmp.append(info.getCategory()).append(batchDelimit);
+							tmp.append(info.getSubcateory()).append(batchDelimit);
+							tmp.append("").append(batchDelimit);//Planned Start
+							tmp.append("").append(batchDelimit);//Planned Completion
+							tmp.append("").append(batchDelimit);//No Sooner Than
+							tmp.append("").append(batchDelimit);//Actual Start
+							tmp.append(info.getActionStatusDtm()).append(batchDelimit);
+							tmp.append("").append(batchDelimit);//Due
+							tmp.append("").append(batchDelimit);//Priority
+							tmp.append("").append(batchDelimit);//Description
+							tmp.append("").append(batchDelimit);//More Info
+							tmp.append("").append(batchDelimit);//Status
+							tmp.append(info.getOwner()).append(batchDelimit);
+							tmp.append("").append(batchDelimit);//Document#
+							tmp.append("").append(batchDelimit);//Sub Status
+							tmp.append("").append(batchDelimit);//Reason
+							tmp.append("").append(batchDelimit);//Order#
 							tmp.append("");//SR		
 							genData[j]=tmp.toString();
 							treatmentArr[j]=info.getTreatmentId();
 							totalRecord=j+1;
 						}
 						StringBuffer footer=new StringBuffer();
-						footer.append(ConstantsBatchActivity.footer).append(ConstantsBatchActivity.delimiter).append(String.valueOf(totalRecord));
+						footer.append(ConstantsBatchActivity.footer).append(batchDelimit).append(String.valueOf(totalRecord));
 	
-						GenFileUtil.genFile(genData, fileName,outBoundPath,batchEnCoding,headerFile,null,footer.toString());
+						GenFileUtil.genFile(genData, fileName,outBoundPath,batchEnCoding,header.toString(),footer.toString(),environment);
 						//Update batch to complete
 						batchDB.updateOutboundCompleteStatus(batchID, username, context);
 						//Update gen flag

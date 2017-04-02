@@ -71,14 +71,17 @@ public class GenExemptActivityLogProcess extends ProcessTemplate {
 				BigDecimal maxFile=batchVersionResult.getResponse().getLimitPerDay();
 				BigDecimal batchVersion=batchVersionResult.getResponse().getBatchVersionNo();
 				String formatFileName=batchVersionResult.getResponse().getBatchNameFormat();
+				String batchFileType=batchVersionResult.getResponse().getBatchFileType();
+				String batchDelimit=batchVersionResult.getResponse().getBatchDelimiter().replace("'", "");;
 				String batchEnCoding=batchVersionResult.getResponse().getBatchEncoding();
 				String username=Utility.getusername(jobType);
 				String outBoundPath=batchPath.getResponse().getPathOutbound();
 				
 				for(int i=0;i<maxFile.intValue();i++){
-					String fileName=GenFileUtil.genFileName("ExemptUpdate_yyyymmdd_hh24miss.dat");
-					String headerFile=fileName.replaceAll("ExemptUpdate_", "").replaceAll(".dat", "");
-					String seqNo=Utility.generateSeqNo(i);
+					String fileName=GenFileUtil.genFileName(formatFileName+batchFileType);
+					StringBuffer header=new StringBuffer();
+					header.append(ConstantsBatchActivity.header).append(batchDelimit).append(fileName.replaceAll("ExemptUpdate_", "").replaceAll(batchFileType, "")).append(batchDelimit).append(Utility.generateSeqNo(i));				
+
 					/*Insert Batch*/
 					CLBatch.CLBatchInfo batchInfo = batchDB.buildCLBatchInfo();
 					batchInfo.setBatchTypeId(batchTypeId);
@@ -105,20 +108,20 @@ public class GenExemptActivityLogProcess extends ProcessTemplate {
 						for(int j=0;j<result.getResponse().size();j++){
 							CLTmpActExemptInfo info=result.getResponse().get(j);
 							StringBuffer tmp=new StringBuffer();
-							tmp.append(ConstantsBatchActivity.body).append(ConstantsBatchActivity.delimiter);
-							tmp.append(info.getBaNo()).append(ConstantsBatchActivity.delimiter);
-							tmp.append(info.getMobileNo()).append(ConstantsBatchActivity.delimiter);
-							tmp.append(info.getMode()).append(ConstantsBatchActivity.delimiter);
-							tmp.append(info.getEffectiveDate()).append(ConstantsBatchActivity.delimiter);
-							tmp.append(info.getExpireDate()).append(ConstantsBatchActivity.delimiter);
+							tmp.append(ConstantsBatchActivity.body).append(batchDelimit);
+							tmp.append(info.getBaNo()).append(batchDelimit);
+							tmp.append(info.getMobileNo()).append(batchDelimit);
+							tmp.append(info.getMode()).append(batchDelimit);
+							tmp.append(info.getEffectiveDate()).append(batchDelimit);
+							tmp.append(info.getExpireDate()).append(batchDelimit);
 							genData[j]=tmp.toString();		
 							exempIdArr[j]=info.getExemptCustomerId();
 							totalRecord=j+1;
 						}
 						StringBuffer footer=new StringBuffer();
-						footer.append(ConstantsBatchActivity.footer).append(ConstantsBatchActivity.delimiter).append(String.valueOf(totalRecord));
+						footer.append(ConstantsBatchActivity.footer).append(batchDelimit).append(String.valueOf(totalRecord));
 	
-						GenFileUtil.genFile(genData, fileName,outBoundPath,batchEnCoding,headerFile,seqNo,footer.toString());
+						GenFileUtil.genFile(genData, fileName,outBoundPath,batchEnCoding,header.toString(),footer.toString(),environment);
 						//Update batch to complete
 						batchDB.updateOutboundCompleteStatus(batchID, username, context);
 						//Update gen flag

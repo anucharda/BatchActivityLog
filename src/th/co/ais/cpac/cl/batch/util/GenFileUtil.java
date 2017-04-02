@@ -15,18 +15,33 @@ public class GenFileUtil {
 	
 	public static final String lineSeparator = System.getProperty("line.separator");
 	
-	public static void genFile(String[] genData,String fileName,String outBoundPath,String encode,String headerDate,String seqNo,String footer) throws Exception{
-		String fileNamePath = outBoundPath+"/"+fileName;
+	public static void genFile(String[] genData,String fileName,String outBoundPath,String encode,String header,String footer,int environment) throws Exception{
+		String fileNamePath = outBoundPath+"\\"+fileName;
 		 Writer writer = null;
 		 try{
+			 if(environment==1 || environment==3 ){//1-Prod,3-SIT
+				 if("ANSI".equals(encode)){
+					 encode="Cp1252";
+				 }
+			 }
+			 else{
+				 if("ANSI".equals(encode)){
+					 encode="Cp1252";
+				 }
+			}
+			
 			 writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileNamePath), encode));
-			 writer.write("Header");
+			 if(!ValidateUtil.isNull(header))
+				 writer.write(header);
+			 	 writer.write(lineSeparator);
 			 for(int i=0; i<genData.length; i++){
 				 writer.write(genData[i]);
 				 writer.write(lineSeparator);
 			 }
-			 writer.write("Footer");
+			 if(!ValidateUtil.isNull(footer))
+				 writer.write(footer);
 		 }catch(Exception e){
+			 e.printStackTrace();
 			 throw e;
 		 }finally{
 			 try {writer.close();} catch (Exception ex) {/*ignore*/}

@@ -10,7 +10,7 @@ package th.co.ais.cpac.cl.batch;
  * @author Sirirat
  */
 public class ConstantsBatchActivity {
-	public static String delimiter="|";
+	public static String header="01";
 	public static String body="02";
 	public static String footer="09";
 	public static String smsActivityLog="SMS - Outbound";
