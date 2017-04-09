@@ -17,6 +17,7 @@ import th.co.ais.cpac.cl.batch.template.ProcessTemplate;
 import th.co.ais.cpac.cl.batch.util.BatchUtil;
 import th.co.ais.cpac.cl.batch.util.FileUtil;
 import th.co.ais.cpac.cl.batch.util.GenFileUtil;
+import th.co.ais.cpac.cl.batch.util.PropertiesReader;
 import th.co.ais.cpac.cl.batch.util.Utility;
 import th.co.ais.cpac.cl.common.Context;
 
@@ -109,7 +110,15 @@ public class GenActivityLogProcess extends ProcessTemplate {
 				
 				String username=Utility.getusername(jobType);
 				String outBoundPath=batchPath.getResponse().getPathOutbound();
-
+				CLTmpActSiebel tmpActSiebelDB=new CLTmpActSiebel(context.getLogger());
+				
+				int totalDataRecord=tmpActSiebelDB.countTmpActSiebel(processName, context);
+				BigDecimal calMaxFile=GenFileUtil.getMaxFile(totalDataRecord,maxRecord);
+				
+				if(calMaxFile.intValue()<maxFile.intValue()){
+					maxFile=calMaxFile;
+				}
+				
 				for(int i=0;i<maxFile.intValue();i++){
 					String fileName=GenFileUtil.genFileName(formatFileName+batchFileType);
 					StringBuffer header=new StringBuffer();
@@ -131,12 +140,11 @@ public class GenActivityLogProcess extends ProcessTemplate {
 					
 					 BigDecimal batchID = insertResult.getIdentity();
 					/*Get Data Top*/
-					CLTmpActSiebel tmpActSiebelDB=new CLTmpActSiebel(context.getLogger());
+					
 					CLTmpActSiebelResponse result =tmpActSiebelDB.getTmpActSiebelInfo(processName, maxRecord, context);
 					if(result!=null&&result.getResponse()!=null&&result.getResponse().size()>0){
 						String [] genData=new String[result.getResponse().size()];
 						BigDecimal [] treatmentArr =new BigDecimal[result.getResponse().size()];
-						
 						int totalRecord=0;
 						for(int j=0;j<result.getResponse().size();j++){
 							CLTmpActSiebelInfo info=result.getResponse().get(j);
@@ -170,8 +178,10 @@ public class GenActivityLogProcess extends ProcessTemplate {
 						}
 						StringBuffer footer=new StringBuffer();
 						footer.append(ConstantsBatchActivity.footer).append(batchDelimit).append(String.valueOf(totalRecord));
-	
-						GenFileUtil.genFile(genData, fileName,outBoundPath,batchEnCoding,header.toString(),footer.toString(),environment);
+						PropertiesReader reader = new PropertiesReader("th.co.ais.cpac.cl.batch.properties.resource","SystemConfigPath");
+						String processPath=reader.get("sb.activity.log.processPath");
+						String syncFileName=fileName.replace(".dat", ".sync");
+						GenFileUtil.genFile(genData, fileName,outBoundPath,batchEnCoding,header.toString(),footer.toString(),environment,processPath,syncFileName,context);
 						//Update batch to complete
 						batchDB.updateOutboundCompleteStatus(batchID, username, context);
 						//Update gen flag

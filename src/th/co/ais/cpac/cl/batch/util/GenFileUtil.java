@@ -6,17 +6,20 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
+import th.co.ais.cpac.cl.common.Context;
+
 public class GenFileUtil {
 	
 	public static final String lineSeparator = System.getProperty("line.separator");
 	
-	public static void genFile(String[] genData,String fileName,String outBoundPath,String encode,String header,String footer,int environment) throws Exception{
-		String fileNamePath = outBoundPath+"\\"+fileName;
+	public static void genFile(String[] genData,String dataFileName,String outBoundPath,String encode,String header,String footer,int environment,String processPath,String syncFileName,Context context) throws Exception{
+		String fileNamePath = processPath+"\\"+dataFileName;
 		 Writer writer = null;
 		 try{
 			 if(environment==1 || environment==3 ){//1-Prod,3-SIT
@@ -47,14 +50,33 @@ public class GenFileUtil {
 			 try {writer.close();} catch (Exception ex) {/*ignore*/}
 		 }
 		 
-		//1.Gen Data (fileName)
-			//01|20070828_160817
-			//genData ->body
-			//09|1
-		//2.Put to Path
-		//3.Create File.sync
-		//File Name: fileName.replace นามสกุลเป็น .sync
-		//->BodyPLUGIN_ACTV_20080428_000001.dat|1258 (bytes)
+		String dataFileSize=getFileSize(fileNamePath);
+		 
+		
+		
+		/*Copy data*/
+		File dataSource = new File(processPath+"/"+dataFileName);
+		
+		if(dataSource.exists()){
+			File dataDest = new File(outBoundPath+"/"+dataFileName);
+			FileUtil.copyFile(dataSource, dataDest);
+			context.getLogger().info("Copy file to process directory successed --> "+dataFileName);
+		}else{
+			context.getLogger().info("Cannot data file");
+		}
+		/*Copy File Sync*/
+		 if(!ValidateUtil.isNull(syncFileName)){
+			 createSyncFile(syncFileName, processPath,dataFileName,dataFileSize,environment,encode);
+			 File syncSource = new File(processPath+"/"+syncFileName);
+			 if(syncSource.exists()){
+				 File syncDest = new File(outBoundPath+"/"+syncFileName);
+					FileUtil.copyFile(syncSource, syncDest);
+					context.getLogger().info("Copy file to process directory successed --> "+syncFileName);
+				}else{
+					context.getLogger().info("Cannot data file");
+				}
+		 }
+			 
 
 	}
 	public static String genFileName(String nameFormat){
@@ -78,4 +100,44 @@ public class GenFileUtil {
         }
 	}
 	
+	public static void createSyncFile(String syncfileName, String filePath,String dataFileName,String dataFileSize,int environment,String encode) throws IOException{
+		String fileNamePath = filePath+"/"+syncfileName;
+		 Writer writer = null;
+		 try{
+			 if(environment==1 || environment==3 ){//1-Prod,3-SIT
+				 if("ANSI".equals(encode)){
+					 encode="Cp1252";
+				 }
+			 }
+			 else{
+				 if("ANSI".equals(encode)){
+					 encode="Cp1252";
+				 }
+			}
+			
+			 writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileNamePath), encode));
+			 writer.write(dataFileName+"|"+dataFileSize);
+		 }catch(Exception e){
+			 e.printStackTrace();
+			 throw e;
+		 }finally{
+			 try {writer.close();} catch (Exception ex) {/*ignore*/}
+		 }
+	}
+	public static String getFileSize(String filePath){
+		File file =new File(filePath);
+
+		if(file.exists()){
+			return  String.valueOf(file.length());
+		}else{
+			return "0";
+		}
+	}
+	public static BigDecimal getMaxFile(int totalRecord,BigDecimal maxRecord){
+		int maxLoop=totalRecord/maxRecord.intValue();
+		if(totalRecord%maxRecord.intValue()>0){
+			maxLoop=maxLoop+1;
+		}
+		return BigDecimal.valueOf(maxLoop);
+	}
 }

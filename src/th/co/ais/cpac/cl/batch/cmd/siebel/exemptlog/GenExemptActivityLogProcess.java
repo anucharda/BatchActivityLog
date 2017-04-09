@@ -18,6 +18,7 @@ import th.co.ais.cpac.cl.batch.template.ProcessTemplate;
 import th.co.ais.cpac.cl.batch.util.BatchUtil;
 import th.co.ais.cpac.cl.batch.util.FileUtil;
 import th.co.ais.cpac.cl.batch.util.GenFileUtil;
+import th.co.ais.cpac.cl.batch.util.PropertiesReader;
 import th.co.ais.cpac.cl.batch.util.Utility;
 import th.co.ais.cpac.cl.common.Context;
 
@@ -76,6 +77,13 @@ public class GenExemptActivityLogProcess extends ProcessTemplate {
 				String batchEnCoding=batchVersionResult.getResponse().getBatchEncoding();
 				String username=Utility.getusername(jobType);
 				String outBoundPath=batchPath.getResponse().getPathOutbound();
+				CLTmpActExempt tmpActExemptDB=new CLTmpActExempt(context.getLogger());
+				int totalDataRecord=tmpActExemptDB.getTmpActExemptCount(context);
+				BigDecimal calMaxFile=GenFileUtil.getMaxFile(totalDataRecord,maxRecord);
+				
+				if(calMaxFile.intValue()<maxFile.intValue()){
+					maxFile=calMaxFile;
+				}
 				
 				for(int i=0;i<maxFile.intValue();i++){
 					String fileName=GenFileUtil.genFileName(formatFileName+batchFileType);
@@ -99,7 +107,7 @@ public class GenExemptActivityLogProcess extends ProcessTemplate {
 					
 					 BigDecimal batchID = insertResult.getIdentity();
 					/*Get Data Top*/
-					 CLTmpActExempt tmpActExemptDB=new CLTmpActExempt(context.getLogger());
+					
 					CLTmpActExemptResponse result =tmpActExemptDB.getTmpActExemptInfo(maxRecord, context);
 					if(result!=null&&result.getResponse()!=null&&result.getResponse().size()>0){
 						String [] genData=new String[result.getResponse().size()];
@@ -120,8 +128,10 @@ public class GenExemptActivityLogProcess extends ProcessTemplate {
 						}
 						StringBuffer footer=new StringBuffer();
 						footer.append(ConstantsBatchActivity.footer).append(batchDelimit).append(String.valueOf(totalRecord));
-	
-						GenFileUtil.genFile(genData, fileName,outBoundPath,batchEnCoding,header.toString(),footer.toString(),environment);
+						PropertiesReader reader = new PropertiesReader("th.co.ais.cpac.cl.batch.properties.resource","SystemConfigPath");
+						String processPath=reader.get("sb.exempt.log.processPath");
+						String syncFileName=fileName.replace(".dat", ".sync");
+						GenFileUtil.genFile(genData, fileName,outBoundPath,batchEnCoding,header.toString(),footer.toString(),environment,processPath,syncFileName,context);
 						//Update batch to complete
 						batchDB.updateOutboundCompleteStatus(batchID, username, context);
 						//Update gen flag
