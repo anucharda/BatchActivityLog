@@ -20,12 +20,10 @@ public class GenActivityLogWorker {
 
 			System.out.println("jobType ->"+jobType);
 			//New thread for execute process.
-			//new Thread ( () -> execute(context, jobType,ConstantsBatchActivity.smsActivityLog) ).start();
-			/*new Thread (()->execute(context, jobType,ConstantsBatchActivity.smsActivityLog)).start();
+			new Thread (() -> execute(context, jobType,ConstantsBatchActivity.smsActivityLog) ).start();
 			new Thread (()->execute(context, jobType,ConstantsBatchActivity.letterActivityLog)).start();
-			new Thread (()->execute(context, jobType,ConstantsBatchActivity.debtActivityLog)).start();*/
-			
-			execute(context, jobType,ConstantsBatchActivity.smsActivityLog);
+			new Thread (()->execute(context, jobType,ConstantsBatchActivity.debtActivityLog)).start();
+		
 			context.getLogger().info("----------------------- End GenActivityLogWorker ----------------------- ");
 		}catch(Exception e){
 			e.printStackTrace();

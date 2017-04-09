@@ -79,7 +79,8 @@ public class GenFileUtil {
 			 
 
 	}
-	public static String genFileName(String nameFormat){
+	public synchronized static String genFileName(String nameFormat) throws InterruptedException{
+		Thread.sleep(1000);
 		Calendar cal = Calendar.getInstance(Locale.US);
 		DateFormat format = new SimpleDateFormat("yyyyMMdd_HHmmss");
 		String yyyymmddStr = format.format(cal.getTime());

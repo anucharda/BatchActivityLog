@@ -68,7 +68,7 @@ public class GenActivityLogProcess extends ProcessTemplate {
 			context.getLogger().info("Start GenActivityLogWorkerProcess.generateLetterOutBound");
 			CLTmpActSiebel tmpActSiebelDB= new CLTmpActSiebel(context.getLogger());
 			tmpActSiebelDB.insertLetterOutBound(context);
-			genFileProcess(ConstantsBatchActivity.smsActivityLog,batchTypeId,jobType);
+			genFileProcess(ConstantsBatchActivity.letterActivityLog,batchTypeId,jobType);
 			context.getLogger().info("End GenActivityLogWorkerProcess.generateLetterOutBound");
 		} catch (Exception e) {
 			context.getLogger().info("Error->"+e.getMessage()+": "+e.getCause().toString());
@@ -82,7 +82,7 @@ public class GenActivityLogProcess extends ProcessTemplate {
 			context.getLogger().info("Start GenActivityLogWorkerProcess.generateDebtOutBound");
 			CLTmpActSiebel tmpActSiebelDB= new CLTmpActSiebel(context.getLogger());
 			tmpActSiebelDB.insertDebtOutBound(context);
-			genFileProcess(ConstantsBatchActivity.smsActivityLog,batchTypeId,jobType);
+			genFileProcess(ConstantsBatchActivity.debtActivityLog,batchTypeId,jobType);
 			context.getLogger().info("End GenActivityLogWorkerProcess.generateDebtOutBound");
 		} catch (Exception e) {
 			context.getLogger().info("Error->"+e.getMessage()+": "+e.getCause().toString());
@@ -152,7 +152,7 @@ public class GenActivityLogProcess extends ProcessTemplate {
 							tmp.append(ConstantsBatchActivity.body).append(batchDelimit);
 							tmp.append(info.getCaNo()).append(batchDelimit);
 							tmp.append(info.getBaNo()).append(batchDelimit);
-							tmp.append(info.getMobileNo()).append(batchDelimit);
+							tmp.append(info.getMobileNo().replaceAll(" ", "")).append(batchDelimit);
 							tmp.append(info.getJobType()).append(batchDelimit);
 							tmp.append(info.getCategory()).append(batchDelimit);
 							tmp.append(info.getSubcateory()).append(batchDelimit);
