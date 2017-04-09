@@ -117,7 +117,7 @@ public class GenExemptCreditLimitProcess extends ProcessTemplate {
 							tmp.append(info.getExemptCustomerId()).append(batchDelimit);
 							tmp.append(info.getCaNo()).append(batchDelimit);
 							tmp.append(info.getBaNo()).append(batchDelimit);
-							tmp.append(info.getMobileNo()).append(batchDelimit);
+							tmp.append(info.getMobileNo().replace(" ", "")).append(batchDelimit);
 							tmp.append(info.getExemptMode()).append(batchDelimit);
 							tmp.append(info.getExemptLevel()).append(batchDelimit);
 							tmp.append(info.getChannel()).append(batchDelimit);

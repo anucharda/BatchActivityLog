@@ -115,7 +115,7 @@ public class GenExemptBlacklistDeblacklistProcess extends ProcessTemplate {
 							tmp.append(info.getExemptCustomerId()).append(batchDelimit);
 							tmp.append(info.getCaNo()).append(batchDelimit);
 							tmp.append(info.getBaNo()).append(batchDelimit);
-							tmp.append(info.getMobileNo()).append(batchDelimit);
+							tmp.append(info.getMobileNo().replace(" ", "")).append(batchDelimit);
 							tmp.append(info.getExemptMode()).append(batchDelimit);
 							tmp.append(info.getExemptLevel()).append(batchDelimit);
 							tmp.append(info.getChannel()).append(batchDelimit);
@@ -129,7 +129,7 @@ public class GenExemptBlacklistDeblacklistProcess extends ProcessTemplate {
 							exempIdArr[j]=info.getExemptCustomerId();
 						}
 						PropertiesReader reader = new PropertiesReader("th.co.ais.cpac.cl.batch.properties.resource","SystemConfigPath");
-						String processPath=reader.get("ssfcc.exmpt.bldl.log.processPath");
+						String processPath=reader.get("ssfcc.exempt.bldl.log.processPath");
 						String syncFileName=fileName.replace(".dat", ".sync");
 						GenFileUtil.genFile(genData, fileName,outBoundPath,batchEnCoding,null,null,environment,processPath,syncFileName,context);
 						//Update batch to complete
