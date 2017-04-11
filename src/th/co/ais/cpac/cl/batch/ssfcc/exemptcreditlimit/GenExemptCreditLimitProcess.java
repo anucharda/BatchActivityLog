@@ -52,6 +52,7 @@ public class GenExemptCreditLimitProcess extends ProcessTemplate {
 			genFileProcess(batchTypeId, jobType);
 			context.getLogger().info("End GenExemptCreditLimitProcess.generate");
 		} catch (Exception e) {
+			e.printStackTrace();
 			context.getLogger().info("Error->" + e.getMessage() + ": " + e.getCause().toString());
 		} finally {
 			context.getLogger().info("End GenExemptCreditLimitProcess.generate");
@@ -113,7 +114,6 @@ public class GenExemptCreditLimitProcess extends ProcessTemplate {
 						for (int j = 0; j < result.getResponse().size(); j++) {
 							CLTmpExemptCreditLimitInfo info = result.getResponse().get(j);
 							StringBuffer tmp = new StringBuffer();
-							tmp.append(ConstantsBatchActivity.body).append(batchDelimit);
 							tmp.append(info.getExemptCustomerId()).append(batchDelimit);
 							tmp.append(info.getCaNo()).append(batchDelimit);
 							tmp.append(info.getBaNo()).append(batchDelimit);
@@ -126,7 +126,7 @@ public class GenExemptCreditLimitProcess extends ProcessTemplate {
 							tmp.append(info.getExpireDate()).append(batchDelimit);
 							tmp.append(info.getDuration()).append(batchDelimit);
 							tmp.append(info.getLocationCode()).append(batchDelimit);
-							tmp.append(info.getReason()).append(batchDelimit);
+							tmp.append(info.getReason());
 							genData[j] = tmp.toString();
 							exempIdArr[j] = info.getExemptCustomerId();
 						}

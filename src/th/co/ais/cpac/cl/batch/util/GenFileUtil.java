@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 import th.co.ais.cpac.cl.common.Context;
@@ -19,30 +20,33 @@ public class GenFileUtil {
 	public static final String lineSeparator = System.getProperty("line.separator");
 	
 	public static void genFile(String[] genData,String dataFileName,String outBoundPath,String encode,String header,String footer,int environment,String processPath,String syncFileName,Context context) throws Exception{
-		String fileNamePath = processPath+"\\"+dataFileName;
+		String fileNamePath = processPath+"/"+dataFileName;
 		 Writer writer = null;
 		 try{
 			 if(environment==1 || environment==3 ){//1-Prod,3-SIT
 				 if("ANSI".equals(encode)){
-					 encode="Cp1252";
+					 encode="TIS-620";
 				 }
 			 }
 			 else{
 				 if("ANSI".equals(encode)){
-					 encode="Cp1252";
+					 encode="TIS-620";
 				 }
 			}
 			
 			 writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileNamePath), encode));
-			 if(!ValidateUtil.isNull(header))
+			 if(!ValidateUtil.isNull(header)){
 				 writer.write(header);
 			 	 writer.write(lineSeparator);
+			 }
 			 for(int i=0; i<genData.length; i++){
 				 writer.write(genData[i]);
 				 writer.write(lineSeparator);
 			 }
 			 if(!ValidateUtil.isNull(footer))
+			 {
 				 writer.write(footer);
+			 }
 		 }catch(Exception e){
 			 e.printStackTrace();
 			 throw e;
@@ -56,7 +60,7 @@ public class GenFileUtil {
 		
 		/*Copy data*/
 		File dataSource = new File(processPath+"/"+dataFileName);
-		
+		context.getLogger().info("Outbound--> "+outBoundPath+"/"+dataFileName);
 		if(dataSource.exists()){
 			File dataDest = new File(outBoundPath+"/"+dataFileName);
 			FileUtil.copyFile(dataSource, dataDest);
@@ -81,9 +85,12 @@ public class GenFileUtil {
 	}
 	public synchronized static String genFileName(String nameFormat) throws InterruptedException{
 		Thread.sleep(1000);
-		Calendar cal = Calendar.getInstance(Locale.US);
-		DateFormat format = new SimpleDateFormat("yyyyMMdd_HHmmss");
-		String yyyymmddStr = format.format(cal.getTime());
+		Date date = new Date();
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss",Locale.US);
+		String yyyymmddStr = dateFormat.format(date);
+//		Calendar cal = Calendar.getInstance(Locale.US);
+//		DateFormat format = new SimpleDateFormat("yyyyMMdd_HHmmss");
+//		String yyyymmddStr = format.format(cal.getTime());
 		return nameFormat.replaceAll("yyyymmdd_hh24miss", yyyymmddStr);
 		
 	}

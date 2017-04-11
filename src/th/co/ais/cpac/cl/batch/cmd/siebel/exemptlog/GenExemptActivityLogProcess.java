@@ -121,7 +121,7 @@ public class GenExemptActivityLogProcess extends ProcessTemplate {
 							tmp.append(info.getMobileNo()).append(batchDelimit);
 							tmp.append(info.getMode()).append(batchDelimit);
 							tmp.append(info.getEffectiveDate()).append(batchDelimit);
-							tmp.append(info.getExpireDate()).append(batchDelimit);
+							tmp.append(info.getExpireDate());
 							genData[j]=tmp.toString();		
 							exempIdArr[j]=info.getExemptCustomerId();
 							totalRecord=j+1;

@@ -10,7 +10,7 @@ public class GenExemptBlacklistDeblacklistWorker {
 		Context context = new Context();
 		try{
 
-			context.initailLogger("LoggerReceive", "ExemptBlacklistDeblacklistWorker");
+			context.initailLogger("LoggerActivityLog", "ExemptBlacklistDeblacklistWorker");
 			// TODO Auto-generated method stub
 			context.getLogger().info("----------------------- Start ExemptBlacklistDeblacklistWorker -----------------------");
 			context.getLogger().info("Load configure....");

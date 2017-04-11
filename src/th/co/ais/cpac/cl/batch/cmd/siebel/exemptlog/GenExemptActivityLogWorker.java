@@ -10,7 +10,7 @@ public class GenExemptActivityLogWorker {
 		Context context = new Context();
 		try{
 
-			context.initailLogger("LoggerReceive", "GenExemptActivityLogWorker");
+			context.initailLogger("LoggerActivityLog", "GenExemptActivityLogWorker");
 			// TODO Auto-generated method stub
 			context.getLogger().info("----------------------- Start GenExemptActivityLogWorker -----------------------");
 			context.getLogger().info("Load configure....");

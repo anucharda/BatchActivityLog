@@ -12,7 +12,7 @@ public class GenActivityLogWorker {
 		Context context = new Context();
 		try{
 
-			context.initailLogger("LoggerReceive", "GenActivityLogWorker");
+			context.initailLogger("LoggerActivityLog", "GenActivityLogWorker");
 			// TODO Auto-generated method stub
 			context.getLogger().info("----------------------- Start GenActivityLogWorker -----------------------");
 			context.getLogger().info("Load configure....");

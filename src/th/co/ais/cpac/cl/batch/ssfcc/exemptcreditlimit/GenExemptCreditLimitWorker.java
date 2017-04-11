@@ -10,7 +10,7 @@ public class GenExemptCreditLimitWorker {
 		Context context = new Context();
 		try{
 
-			context.initailLogger("LoggerReceive", "GenExemptCreditLimitWorker");
+			context.initailLogger("LoggerActivityLog", "GenExemptCreditLimitWorker");
 			// TODO Auto-generated method stub
 			context.getLogger().info("----------------------- Start GenExemptCreditLimitWorker -----------------------");
 			context.getLogger().info("Load configure....");
