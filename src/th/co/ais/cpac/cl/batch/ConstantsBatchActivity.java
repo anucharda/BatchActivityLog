@@ -14,6 +14,6 @@ public class ConstantsBatchActivity {
 	public static String body="02";
 	public static String footer="09";
 	public static String smsActivityLog="SMS - Outbound";
-	public static String letterActivityLog="Letter – Outbound";
+	public static String letterActivityLog="Letter - Outbound";
 	public static String debtActivityLog="Debt - Outbound";
 }

@@ -137,7 +137,6 @@ public class GenActivityLogProcess extends ProcessTemplate {
 					batchInfo.setLastUpd(new Date());
 					batchInfo.setLastUpdBy(username);
 					ExecuteResponse insertResult=batchDB.insertCLBatch(batchInfo);
-					
 					 BigDecimal batchID = insertResult.getIdentity();
 					/*Get Data Top*/
 					
@@ -154,8 +153,10 @@ public class GenActivityLogProcess extends ProcessTemplate {
 							tmp.append(info.getBaNo()).append(batchDelimit);
 							tmp.append(info.getMobileNo().replaceAll(" ", "")).append(batchDelimit);
 							tmp.append(info.getJobType()).append(batchDelimit);
-							tmp.append(info.getCategory()).append(batchDelimit);
-							tmp.append(info.getSubcateory()).append(batchDelimit);
+							//tmp.append(info.getCategory()).append(batchDelimit);
+							//tmp.append(info.getSubcateory()).append(batchDelimit);
+							tmp.append("018").append(batchDelimit);
+							tmp.append("21").append(batchDelimit);
 							tmp.append("").append(batchDelimit);//Planned Start
 							tmp.append("").append(batchDelimit);//Planned Completion
 							tmp.append("").append(batchDelimit);//No Sooner Than
