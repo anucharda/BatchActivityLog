@@ -166,13 +166,8 @@ public class GenActivityLogProcess extends ProcessTemplate {
 							tmp.append("").append(batchDelimit);//Priority
 							tmp.append("").append(batchDelimit);//Description
 							tmp.append("").append(batchDelimit);//More Info
-							tmp.append("").append(batchDelimit);//Status
-							tmp.append(info.getOwner()).append(batchDelimit);
-							tmp.append("").append(batchDelimit);//Document#
-							tmp.append("").append(batchDelimit);//Sub Status
-							tmp.append("").append(batchDelimit);//Reason
-							tmp.append("").append(batchDelimit);//Order#
-							tmp.append("");//SR		
+							tmp.append("DONE").append(batchDelimit);//Status
+							tmp.append(info.getOwner());//SOURCE_MODULE_ID
 							genData[j]=tmp.toString();
 							treatmentArr[j]=info.getTreatmentId();
 							totalRecord=j+1;
